@@ -1,0 +1,16 @@
+{
+  "name": "pothole-filler",
+  "version": "0.0.0",
+  "description": "Fill holes in RGBD images",
+  "main": "index.js",
+  "bin": {
+    "pothole-filler": "./bin.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "argparse": "^1.0.1",
+    "node-png": "^0.4.3",
+    "underscore": "^1.8.2"
+  }
+}
