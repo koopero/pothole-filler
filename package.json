@@ -1,10 +1,29 @@
 {
   "name": "pothole-filler",
-  "version": "0.0.0",
+  "keywords": [
+    "kinect",
+    "RGBD",
+    "PNG",
+    "image",
+    "fill holes"
+  ],
+  "version": "0.1.0",
   "description": "Fill holes in RGBD images",
   "main": "index.js",
   "bin": {
     "pothole-filler": "./bin.js"
+  },
+  "homepage": "https://github.com/koopero/pothole-filler",
+  "author": {
+    "name": "koopero",
+    "email": "koopero@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/koopero/pothole-filler.git"
+  },
+  "bugs": {
+    "url": "https://github.com/koopero/pothole-filler/issues"
   },
   "author": "",
   "license": "MIT",

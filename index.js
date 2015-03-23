@@ -7,7 +7,7 @@ const
 exports.processFile = processFile;
 exports.potholeFiller = potholeFiller;
 
-function processFile( inputFile, outputFile ) {
+function processFile( inputFile, outputFile, depthChannel, threshold ) {
   var width, height;
 
   fs.createReadStream(inputFile)
@@ -15,15 +15,20 @@ function processFile( inputFile, outputFile ) {
     .on( 'metadata', function ( meta ) {
       width = meta.width;
       height = meta.height;
+      if ( depthChannel === undefined )
+        depthChannel = meta.alpha ? 3 : 0;
     })
     .on( 'parsed', function( data ) {
-      potholeFiller( data, width, height );
+      potholeFiller( data, width, height, depthChannel, threshold );
       this.pack().pipe( fs.createWriteStream( outputFile ) );
     })
 }
 
 
-function potholeFiller( data, width, height ) {
+function potholeFiller( data, width, height, depthChannel, threshold ) {
+  if ( depthChannel === undefined )
+    depthChannel = 3;
+
   for ( var y = 0; y < height; y ++ )
   for ( var x = 0; x < width; x ++ ) {
     if ( isHole( x,y ) )
@@ -35,12 +40,12 @@ function potholeFiller( data, width, height ) {
   }
 
   function isHole( x,y ) {
-    return data[ind(x,y,3)] == 0;
+    return data[ind(x,y,depthChannel)] <= threshold;
   }
 
   function pix( x, y ) {
     if ( x >= 0 && y >= 0 && x < width && y < height )
-      return { x: x, y: y, a: data[ind( x,y,3)]  }
+      return { x: x, y: y, a: data[ind( x,y,depthChannel)]  }
   }
 
   function fillHole( x, y ) {
@@ -59,8 +64,15 @@ function potholeFiller( data, width, height ) {
         t += w;
       }
 
-      var i = ind( h.x, h.y, 3 );
-      data[i] = Math.floor( a / t );
+      var i = ind( h.x, h.y, 0 );
+      if ( depthChannel )
+        data[i + depthChannel] = Math.floor( a / t );
+      else {
+        data[i + 0] = Math.floor( a / t );
+        data[i + 1] = Math.floor( a / t );
+        data[i + 2] = Math.floor( a / t );
+      }
+
     }
 
     //process.exit();
@@ -73,6 +85,7 @@ function potholeFiller( data, width, height ) {
         ;
 
       p = pix( x,y );
+      hole[ind(x,y)] = p;
       q.push( p );
 
       while ( p = q.shift() ) {
@@ -83,13 +96,12 @@ function potholeFiller( data, width, height ) {
             continue;
 
           var i = ind( n.x, n.y );
-          if ( n.a )
+          if ( n.a > threshold )
             edge[i] = n;
-          else
+          else {
             hole[i] = n;
-
-          if ( !n.a )
             q.push( n );
+          }
         }
       } 
 

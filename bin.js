@@ -12,7 +12,8 @@ var parser = new ArgumentParser({
 parser.addArgument(
 	[ '-o'],
 	{
-		help: 'Output file'
+		help: 'Output file',
+		dest: 'output',
 	}
 );
 
@@ -24,11 +25,31 @@ parser.addArgument(
 	}
 );
 
+parser.addArgument(
+	[ '-gray'],
+	{
+		help: 'Treat input as grayscale and act on RGB channels rather than alpha channel.',
+		action: 'storeTrue',
+	}
+);
+
+parser.addArgument(
+	[ '-t'],
+	{
+		help: 'Threshold for depths to be considered holes.',
+		type: 'int',
+		dest: 'threshold',
+		defaultValue: 10
+	}
+);
+
 var args = parser.parseArgs();
 
 
 var infile = args.input;
-var outfile = args.o || infile;
+var outfile = args.output || infile;
+var channel = args.gray ? 0 : 3;
+var threshold = args.threshold;
 
 var processFile = require('./index.js').processFile;
-processFile( infile, outfile );
+processFile( infile, outfile, channel, threshold );
